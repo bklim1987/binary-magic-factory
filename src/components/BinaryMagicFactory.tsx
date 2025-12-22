@@ -21,6 +21,9 @@ export const BinaryMagicFactory = () => {
   });
   const [selectedCardBits, setSelectedCardBits] = useState<number[]>([]);
   const [completedCards, setCompletedCards] = useState<number[]>([]);
+  
+  // Check if all 4 cards are completed
+  const allCardsCompleted = completedCards.length === 4;
   const animationTimeouts = useRef<NodeJS.Timeout[]>([]);
 
   const getMatchingNumbers = useCallback((bit: number) => {
@@ -43,11 +46,12 @@ export const BinaryMagicFactory = () => {
     animationTimeouts.current = [];
 
     if (selectedBits.includes(bit)) {
-      // Unprint: just clear the card, no animation
+      // Unprint: clear the card and ALL checkboxes/highlights
       setSelectedBits(prev => prev.filter(b => b !== bit));
       setAnimatingCards(prev => ({ ...prev, [bit]: [] }));
       setCompletedCards(prev => prev.filter(b => b !== bit));
-      setSelectedCardBits(prev => prev.filter(b => b !== bit));
+      // Clear ALL selected card bits when any card is cleared
+      setSelectedCardBits([]);
     } else {
       // Lock interactions
       setIsLocked(true);
@@ -87,11 +91,17 @@ export const BinaryMagicFactory = () => {
   };
 
   const handleCardSelect = (bit: number) => {
-    if (!completedCards.includes(bit)) return;
+    // Only allow selection when all 4 cards are completed
+    if (!allCardsCompleted) return;
     setSelectedCardBits(prev => 
       prev.includes(bit) ? prev.filter(b => b !== bit) : [...prev, bit]
     );
   };
+
+  // Calculate the sum of selected card bits
+  const selectedBitsSum = useMemo(() => {
+    return selectedCardBits.reduce((sum, bit) => sum + bit, 0);
+  }, [selectedCardBits]);
 
   // Check if any selected bit matches a number - highlight during animation or card selection
   const getHighlightedBits = (num: number) => {
@@ -114,12 +124,16 @@ export const BinaryMagicFactory = () => {
       }
     });
     
-    // Highlight for selected cards (after animation complete)
-    selectedCardBits.forEach(bit => {
-      if ((num & bit) === bit && !activeBits.includes(bit)) {
-        activeBits.push(bit);
-      }
-    });
+    // Highlight ONLY the number that equals the sum of selected bits
+    // e.g., if green(2) selected -> highlight only 2
+    // if green(2) + red(1) selected -> highlight only 3
+    if (selectedCardBits.length > 0 && num === selectedBitsSum) {
+      selectedCardBits.forEach(bit => {
+        if (!activeBits.includes(bit)) {
+          activeBits.push(bit);
+        }
+      });
+    }
     
     return activeBits;
   };
@@ -216,7 +230,7 @@ export const BinaryMagicFactory = () => {
                 numbers={cardNumbers[bit]}
                 isAnimating={blinkingBit === bit || animatingCards[bit].length < cardNumbers[bit].length}
                 animatedNumbers={animatingCards[bit]}
-                isSelectable={completedCards.includes(bit)}
+                isSelectable={allCardsCompleted && completedCards.includes(bit)}
                 isCardSelected={selectedCardBits.includes(bit)}
                 onCardSelect={handleCardSelect}
               />
