@@ -71,12 +71,16 @@ export const OutputCard = ({
       <div className="grid grid-cols-4 gap-2 flex-1">
         <AnimatePresence mode="popLayout">
           {displayNumbers.map((num, index) => {
+            // Only emphasize key number when card is selected AND showing checkboxes
             const isKeyNumber = isCardSelected && index === 0;
             return (
               <motion.div
                 key={`${bit}-${num}`}
                 initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
+                animate={{ 
+                  scale: isKeyNumber ? 1.1 : 1, 
+                  opacity: 1 
+                }}
                 exit={{ scale: 0, opacity: 0 }}
                 transition={{ 
                   type: "spring",
@@ -84,11 +88,11 @@ export const OutputCard = ({
                   damping: 25
                 }}
                 className={cn(
-                  "flex items-center justify-center rounded-lg font-mono font-bold text-lg h-12",
+                  "flex items-center justify-center rounded-lg font-mono font-bold text-lg h-12 transition-all duration-300",
                   info.bg,
                   `border ${info.border}`,
                   info.color,
-                  isKeyNumber && "ring-4 ring-white ring-offset-2 ring-offset-card scale-110 z-10"
+                  isKeyNumber && "ring-4 ring-white ring-offset-2 ring-offset-card z-10"
                 )}
               >
                 {num}
