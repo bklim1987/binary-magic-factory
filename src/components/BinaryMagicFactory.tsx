@@ -200,7 +200,7 @@ export const BinaryMagicFactory = () => {
                     <NumberRow
                       key={num}
                       number={num}
-                      selectedBits={selectedBits}
+                      highlightedBits={highlightedBits}
                       isDimmed={isDimmed}
                       isHighlighted={isHighlighted}
                       blinkingBit={blinkingBit}

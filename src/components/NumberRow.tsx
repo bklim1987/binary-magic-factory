@@ -4,13 +4,13 @@ import { cn } from "@/lib/utils";
 
 interface NumberRowProps {
   number: number;
-  selectedBits: number[];
+  highlightedBits: number[];
   isDimmed: boolean;
   isHighlighted: boolean;
   blinkingBit: number | null;
 }
 
-export const NumberRow = ({ number, selectedBits, isDimmed, isHighlighted, blinkingBit }: NumberRowProps) => {
+export const NumberRow = ({ number, highlightedBits, isDimmed, isHighlighted, blinkingBit }: NumberRowProps) => {
   const bits: (1 | 2 | 4 | 8)[] = [8, 4, 2, 1];
 
   return (
@@ -36,12 +36,14 @@ export const NumberRow = ({ number, selectedBits, isDimmed, isHighlighted, blink
         {bits.map((bit) => {
           const hasBit = (number & bit) === bit;
           const isBlinking = blinkingBit === bit && hasBit;
+          // Only show glow when this bit is in highlightedBits (during animation or card selection)
+          const shouldGlow = highlightedBits.includes(bit);
           return (
             <BitDot
               key={bit}
               bit={bit}
               isActive={hasBit}
-              isHighlighted={selectedBits.includes(bit) && hasBit}
+              isHighlighted={shouldGlow}
               isBlinking={isBlinking}
             />
           );
