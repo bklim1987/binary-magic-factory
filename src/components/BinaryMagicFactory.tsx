@@ -120,9 +120,10 @@ export const BinaryMagicFactory = () => {
       activeBits.push(blinkingBit);
     }
     
-    // Highlight for bits that are still being animated (not fully filled)
+    // Highlight for bits that are still being animated (not fully filled yet)
+    // Once a card is completed, NO glow effect on the number list
     BITS.forEach(bit => {
-      if (bit !== blinkingBit && selectedBits.includes(bit)) {
+      if (bit !== blinkingBit && selectedBits.includes(bit) && !completedCards.includes(bit)) {
         const matchingNums = getMatchingNumbers(bit);
         const animatedNums = animatingCards[bit];
         // Only highlight if animation is in progress (not complete)
