@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Factory, Sparkles } from "lucide-react";
 import { NumberRow } from "./NumberRow";
 import { PrintButton } from "./PrintButton";
@@ -12,6 +12,7 @@ const BITS: (1 | 2 | 4 | 8)[] = [1, 2, 4, 8];
 export const BinaryMagicFactory = () => {
   const [selectedBits, setSelectedBits] = useState<number[]>([]);
   const [blinkingBit, setBlinkingBit] = useState<number | null>(null);
+  const [isLocked, setIsLocked] = useState(false);
   const [animatingCards, setAnimatingCards] = useState<Record<number, number[]>>({
     1: [],
     2: [],
@@ -32,15 +33,21 @@ export const BinaryMagicFactory = () => {
   }), [selectedBits, getMatchingNumbers]);
 
   const handlePrint = (bit: number) => {
+    // Block all interactions while locked
+    if (isLocked) return;
+
     // Clear any existing animations for this bit
     animationTimeouts.current.forEach(clearTimeout);
     animationTimeouts.current = [];
 
     if (selectedBits.includes(bit)) {
-      // Deselect
+      // Unprint: just clear the card, no animation
       setSelectedBits(prev => prev.filter(b => b !== bit));
       setAnimatingCards(prev => ({ ...prev, [bit]: [] }));
     } else {
+      // Lock interactions
+      setIsLocked(true);
+      
       // Select and animate
       setSelectedBits(prev => [...prev, bit]);
       setBlinkingBit(bit);
@@ -58,6 +65,13 @@ export const BinaryMagicFactory = () => {
               ...prev,
               [bit]: [...prev[bit], num]
             }));
+            
+            // After last number, unlock and clear highlights
+            if (index === matchingNums.length - 1) {
+              setTimeout(() => {
+                setIsLocked(false);
+              }, 100);
+            }
           }, index * intervalTime);
           animationTimeouts.current.push(timeout);
         });
@@ -67,10 +81,34 @@ export const BinaryMagicFactory = () => {
     }
   };
 
-  // Check if any selected bit matches a number
+  // Check if any selected bit matches a number - only highlight during blinking or animating
   const getHighlightedBits = (num: number) => {
-    return selectedBits.filter(bit => (num & bit) === bit);
+    // Only highlight if we're in the middle of an animation (blinking or filling)
+    const activeBits: number[] = [];
+    
+    if (blinkingBit && (num & blinkingBit) === blinkingBit) {
+      activeBits.push(blinkingBit);
+    }
+    
+    // Also highlight for bits that are still being animated (not fully filled)
+    BITS.forEach(bit => {
+      if (bit !== blinkingBit && selectedBits.includes(bit)) {
+        const matchingNums = getMatchingNumbers(bit);
+        const animatedNums = animatingCards[bit];
+        // Only highlight if animation is in progress (not complete)
+        if (animatedNums.length > 0 && animatedNums.length < matchingNums.length && (num & bit) === bit) {
+          activeBits.push(bit);
+        }
+      }
+    });
+    
+    return activeBits;
   };
+
+  // Sort selected bits for pattern hints: 1, 2, 4, 8 order
+  const sortedSelectedBits = useMemo(() => {
+    return [...selectedBits].sort((a, b) => a - b);
+  }, [selectedBits]);
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -107,7 +145,7 @@ export const BinaryMagicFactory = () => {
               {NUMBERS.map((num) => {
                 const highlightedBits = getHighlightedBits(num);
                 const isHighlighted = highlightedBits.length > 0;
-                const isDimmed = selectedBits.length > 0 && !isHighlighted;
+                const isDimmed = (blinkingBit !== null || isLocked) && !isHighlighted;
                 
                 return (
                   <NumberRow
@@ -145,6 +183,7 @@ export const BinaryMagicFactory = () => {
                 isActive={selectedBits.includes(bit)}
                 isBlinking={blinkingBit === bit}
                 onClick={() => handlePrint(bit)}
+                disabled={isLocked}
               />
             ))}
           </div>
@@ -162,11 +201,13 @@ export const BinaryMagicFactory = () => {
             ))}
           </div>
 
-          {/* Pattern Hints */}
+          {/* Pattern Hints - sorted by bit value */}
           <div className="space-y-2">
-            {selectedBits.map(bit => (
-              <PatternHint key={bit} selectedBit={bit} />
-            ))}
+            <AnimatePresence>
+              {sortedSelectedBits.map(bit => (
+                <PatternHint key={bit} bit={bit} />
+              ))}
+            </AnimatePresence>
           </div>
         </motion.div>
       </div>
