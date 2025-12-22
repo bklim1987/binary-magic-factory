@@ -11,8 +11,8 @@ const NUMBERS = Array.from({ length: 15 }, (_, i) => i + 1);
 const BITS: (1 | 2 | 4 | 8)[] = [1, 2, 4, 8];
 
 export const BinaryMagicFactory = () => {
-  // Phase control - starts at Phase 2 (puzzle), then unlocks Phase 1 (cards)
-  const [phase1Unlocked, setPhase1Unlocked] = useState(false);
+  // Phase control - starts at Phase 1 (puzzle), then unlocks Phase 2 (cards)
+  const [phase2Unlocked, setPhase2Unlocked] = useState(false);
   
   const [selectedBits, setSelectedBits] = useState<number[]>([]);
   const [blinkingBit, setBlinkingBit] = useState<number | null>(null);
@@ -30,8 +30,8 @@ export const BinaryMagicFactory = () => {
   const allCardsCompleted = completedCards.length === 4;
   const animationTimeouts = useRef<NodeJS.Timeout[]>([]);
 
-  const handlePhase2Complete = useCallback(() => {
-    setPhase1Unlocked(true);
+  const handlePhase1Complete = useCallback(() => {
+    setPhase2Unlocked(true);
   }, []);
 
   const getMatchingNumbers = useCallback((bit: number) => {
@@ -167,19 +167,20 @@ export const BinaryMagicFactory = () => {
           <Sparkles className="w-8 h-8 text-accent" />
         </div>
         <p className="text-muted-foreground text-lg">
-          {phase1Unlocked 
+          {phase2Unlocked 
             ? "Pick colors to see which numbers contain those magic bits!"
-            : "Complete the binary puzzle to unlock the magic cards!"}
+            : "Complete Phase 1 to unlock the magic cards!"}
         </p>
       </motion.header>
 
       {/* Main Stage */}
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start">
-        {/* Left: Phase 2 Panel (Binary Input Puzzle) */}
-        <Phase2Panel onComplete={handlePhase2Complete} isActive={!phase1Unlocked} />
-
-        {/* Middle: Number List (X-Ray Scanner) - only show when Phase 1 unlocked */}
-        {phase1Unlocked && (
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start justify-center">
+        {/* Left: Phase 1 Panel (Binary Input Puzzle) - hide after Phase 2 unlocked */}
+        {!phase2Unlocked && (
+          <Phase2Panel onComplete={handlePhase1Complete} isActive={!phase2Unlocked} />
+        )}
+        {/* Middle: Number List (X-Ray Scanner) - only show when Phase 2 unlocked */}
+        {phase2Unlocked && (
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -217,8 +218,8 @@ export const BinaryMagicFactory = () => {
           transition={{ delay: 0.2 }}
           className="w-full lg:w-[500px] space-y-5 relative"
         >
-          {/* Frozen overlay when Phase 1 is locked */}
-          {!phase1Unlocked && (
+          {/* Frozen overlay when Phase 2 is locked */}
+          {!phase2Unlocked && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -226,7 +227,7 @@ export const BinaryMagicFactory = () => {
             >
               <Lock className="w-16 h-16 text-muted-foreground mb-4" />
               <p className="text-muted-foreground text-lg font-medium">
-                Complete Phase 2 to unlock
+                Complete Phase 1 to unlock
               </p>
             </motion.div>
           )}
@@ -245,7 +246,7 @@ export const BinaryMagicFactory = () => {
                 isActive={selectedBits.includes(bit)}
                 isBlinking={blinkingBit === bit}
                 onClick={() => handlePrint(bit)}
-                disabled={isLocked || !phase1Unlocked}
+                disabled={isLocked || !phase2Unlocked}
               />
             ))}
           </div>

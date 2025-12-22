@@ -53,9 +53,8 @@ export const Phase2Panel = ({ onComplete, isActive }: Phase2PanelProps) => {
       <div className="bg-card/50 rounded-2xl p-4 md:p-6 backdrop-blur-sm border border-border relative overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-            {isActive ? <Unlock className="w-5 h-5 text-accent" /> : <Lock className="w-5 h-5 text-muted-foreground" />}
-            Phase 2: Light Up the Bits
+        <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+          Phase 1: Light Up the Bits
           </h2>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span className={cn(
@@ -127,7 +126,7 @@ export const Phase2Panel = ({ onComplete, isActive }: Phase2PanelProps) => {
                 className="text-2xl font-bold text-accent flex items-center gap-2"
               >
                 <Sparkles className="w-6 h-6" />
-                Factory Unlocked!
+                Phase 2 Unlocked!
                 <Sparkles className="w-6 h-6" />
               </motion.div>
               <motion.p
@@ -136,7 +135,7 @@ export const Phase2Panel = ({ onComplete, isActive }: Phase2PanelProps) => {
                 transition={{ delay: 0.6 }}
                 className="text-muted-foreground mt-2"
               >
-                Now try the magic cards...
+                Now discover the magic cards...
               </motion.p>
             </motion.div>
           )}
