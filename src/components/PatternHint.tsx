@@ -13,10 +13,10 @@ const patterns: Record<number, string> = {
 };
 
 const bitColors: Record<number, string> = {
-  1: "bg-bit-1 text-white",
-  2: "bg-bit-2 text-white",
-  4: "bg-bit-4 text-white",
-  8: "bg-bit-8 text-foreground",
+  1: "bg-red-300 text-gray-900",
+  2: "bg-green-300 text-gray-900",
+  4: "bg-blue-300 text-gray-900",
+  8: "bg-yellow-300 text-gray-900",
 };
 
 export const PatternHint = ({ bit }: PatternHintProps) => {
