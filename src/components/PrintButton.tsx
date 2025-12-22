@@ -8,6 +8,7 @@ interface PrintButtonProps {
   isActive: boolean;
   isBlinking: boolean;
   onClick: () => void;
+  disabled?: boolean;
 }
 
 const bitStyles = {
@@ -17,8 +18,9 @@ const bitStyles = {
   8: { bg: "bg-bit-8", hover: "hover:bg-bit-8/90", glow: "bit-glow-8" },
 };
 
-export const PrintButton = ({ bit, label, isActive, isBlinking, onClick }: PrintButtonProps) => {
+export const PrintButton = ({ bit, label, isActive, isBlinking, onClick, disabled }: PrintButtonProps) => {
   const styles = bitStyles[bit];
+  const isDisabled = disabled || isBlinking;
 
   return (
     <motion.button
@@ -27,12 +29,13 @@ export const PrintButton = ({ bit, label, isActive, isBlinking, onClick }: Print
         "shadow-lg active:shadow-none active:translate-y-1",
         styles.bg,
         styles.hover,
-        isActive && styles.glow
+        isActive && styles.glow,
+        isDisabled && "opacity-50 cursor-not-allowed"
       )}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
+      whileHover={isDisabled ? {} : { scale: 1.05 }}
+      whileTap={isDisabled ? {} : { scale: 0.95 }}
       onClick={onClick}
-      disabled={isBlinking}
+      disabled={isDisabled}
       animate={{
         opacity: isBlinking ? [1, 0.5, 1] : 1,
       }}
