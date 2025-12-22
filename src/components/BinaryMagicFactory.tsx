@@ -19,6 +19,8 @@ export const BinaryMagicFactory = () => {
     4: [],
     8: [],
   });
+  const [selectedCardBits, setSelectedCardBits] = useState<number[]>([]);
+  const [completedCards, setCompletedCards] = useState<number[]>([]);
   const animationTimeouts = useRef<NodeJS.Timeout[]>([]);
 
   const getMatchingNumbers = useCallback((bit: number) => {
@@ -44,6 +46,8 @@ export const BinaryMagicFactory = () => {
       // Unprint: just clear the card, no animation
       setSelectedBits(prev => prev.filter(b => b !== bit));
       setAnimatingCards(prev => ({ ...prev, [bit]: [] }));
+      setCompletedCards(prev => prev.filter(b => b !== bit));
+      setSelectedCardBits(prev => prev.filter(b => b !== bit));
     } else {
       // Lock interactions
       setIsLocked(true);
@@ -66,10 +70,11 @@ export const BinaryMagicFactory = () => {
               [bit]: [...prev[bit], num]
             }));
             
-            // After last number, unlock and clear highlights
+            // After last number, unlock and mark card as completed
             if (index === matchingNums.length - 1) {
               setTimeout(() => {
                 setIsLocked(false);
+                setCompletedCards(prev => [...prev, bit]);
               }, 100);
             }
           }, index * intervalTime);
@@ -81,16 +86,23 @@ export const BinaryMagicFactory = () => {
     }
   };
 
-  // Check if any selected bit matches a number - only highlight during blinking or animating
+  const handleCardSelect = (bit: number) => {
+    if (!completedCards.includes(bit)) return;
+    setSelectedCardBits(prev => 
+      prev.includes(bit) ? prev.filter(b => b !== bit) : [...prev, bit]
+    );
+  };
+
+  // Check if any selected bit matches a number - highlight during animation or card selection
   const getHighlightedBits = (num: number) => {
-    // Only highlight if we're in the middle of an animation (blinking or filling)
     const activeBits: number[] = [];
     
+    // Highlight during blinking phase
     if (blinkingBit && (num & blinkingBit) === blinkingBit) {
       activeBits.push(blinkingBit);
     }
     
-    // Also highlight for bits that are still being animated (not fully filled)
+    // Highlight for bits that are still being animated (not fully filled)
     BITS.forEach(bit => {
       if (bit !== blinkingBit && selectedBits.includes(bit)) {
         const matchingNums = getMatchingNumbers(bit);
@@ -99,6 +111,13 @@ export const BinaryMagicFactory = () => {
         if (animatedNums.length > 0 && animatedNums.length < matchingNums.length && (num & bit) === bit) {
           activeBits.push(bit);
         }
+      }
+    });
+    
+    // Highlight for selected cards (after animation complete)
+    selectedCardBits.forEach(bit => {
+      if ((num & bit) === bit && !activeBits.includes(bit)) {
+        activeBits.push(bit);
       }
     });
     
@@ -197,6 +216,9 @@ export const BinaryMagicFactory = () => {
                 numbers={cardNumbers[bit]}
                 isAnimating={blinkingBit === bit || animatingCards[bit].length < cardNumbers[bit].length}
                 animatedNumbers={animatingCards[bit]}
+                isSelectable={completedCards.includes(bit)}
+                isCardSelected={selectedCardBits.includes(bit)}
+                onCardSelect={handleCardSelect}
               />
             ))}
           </div>
