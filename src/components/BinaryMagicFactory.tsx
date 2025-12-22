@@ -6,6 +6,7 @@ import { PrintButton } from "./PrintButton";
 import { OutputCard } from "./OutputCard";
 import { PatternHint } from "./PatternHint";
 import { Phase2Panel } from "./Phase2Panel";
+import { TutorialDialog } from "./TutorialDialog";
 
 const NUMBERS = Array.from({ length: 15 }, (_, i) => i + 1);
 const BITS: (1 | 2 | 4 | 8)[] = [1, 2, 4, 8];
@@ -279,6 +280,9 @@ export const BinaryMagicFactory = () => {
           </div>
         </motion.div>
       </div>
+
+      {/* Tutorial Help Button */}
+      <TutorialDialog />
     </div>
   );
 };
