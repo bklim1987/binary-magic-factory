@@ -87,7 +87,7 @@ export const BinaryMagicFactory = () => {
               setTimeout(() => {
                 setIsLocked(false);
                 setCompletedCards(prev => [...prev, bit]);
-              }, 500);
+              }, 1000);
             }
           }, index * intervalTime);
           animationTimeouts.current.push(timeout);
