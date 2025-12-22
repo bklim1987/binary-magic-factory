@@ -120,15 +120,18 @@ export const BinaryMagicFactory = () => {
       activeBits.push(blinkingBit);
     }
     
-    // Highlight for bits that are still being animated (until card is marked complete)
-    // The card is marked complete AFTER all numbers are filled
+    // Highlight for bits that are currently printing (until the LAST number is printed)
+    // Do NOT rely on completedCards timing; tie it to the actual fill progress.
     BITS.forEach(bit => {
-      if (bit !== blinkingBit && selectedBits.includes(bit) && !completedCards.includes(bit)) {
-        const animatedNums = animatingCards[bit];
-        // Highlight if any numbers are animating and card not yet marked complete
-        if (animatedNums.length > 0 && (num & bit) === bit) {
-          activeBits.push(bit);
-        }
+      if (bit === blinkingBit) return;
+      if (!selectedBits.includes(bit)) return;
+
+      const targetLen = getMatchingNumbers(bit).length;
+      const currentLen = animatingCards[bit].length;
+      const isPrinting = currentLen > 0 && currentLen < targetLen;
+
+      if (isPrinting && (num & bit) === bit) {
+        activeBits.push(bit);
       }
     });
     
