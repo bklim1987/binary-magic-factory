@@ -17,16 +17,19 @@ export const NumberRow = ({ number, selectedBits, isDimmed, isHighlighted, blink
     <motion.div
       className={cn(
         "flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-300",
-        isHighlighted && "bg-secondary/50 ring-1 ring-foreground/10",
+        isHighlighted && "bg-gradient-to-r from-primary/20 to-accent/20 ring-2 ring-primary/50",
         isDimmed && "opacity-10"
       )}
       animate={{
-        scale: isHighlighted ? 1.02 : 1,
-        x: isHighlighted ? 4 : 0,
+        scale: isHighlighted ? 1.05 : 1,
+        x: isHighlighted ? 8 : 0,
       }}
       transition={{ duration: 0.25 }}
     >
-      <span className="font-mono text-xl font-bold w-8 text-right text-foreground/90">
+      <span className={cn(
+        "font-mono text-xl font-bold w-8 text-right transition-all duration-300",
+        isHighlighted ? "text-accent text-2xl" : "text-foreground/90"
+      )}>
         {number}
       </span>
       <div className="flex gap-2">

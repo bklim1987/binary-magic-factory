@@ -70,27 +70,31 @@ export const OutputCard = ({
       
       <div className="grid grid-cols-4 gap-2 flex-1">
         <AnimatePresence mode="popLayout">
-          {displayNumbers.map((num) => (
-            <motion.div
-              key={`${bit}-${num}`}
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              transition={{ 
-                type: "spring",
-                stiffness: 500,
-                damping: 25
-              }}
-              className={cn(
-                "flex items-center justify-center rounded-lg font-mono font-bold text-lg h-12",
-                info.bg,
-                `border ${info.border}`,
-                info.color
-              )}
-            >
-              {num}
-            </motion.div>
-          ))}
+          {displayNumbers.map((num, index) => {
+            const isKeyNumber = isCardSelected && index === 0;
+            return (
+              <motion.div
+                key={`${bit}-${num}`}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                transition={{ 
+                  type: "spring",
+                  stiffness: 500,
+                  damping: 25
+                }}
+                className={cn(
+                  "flex items-center justify-center rounded-lg font-mono font-bold text-lg h-12",
+                  info.bg,
+                  `border ${info.border}`,
+                  info.color,
+                  isKeyNumber && "ring-4 ring-white ring-offset-2 ring-offset-card scale-110 z-10"
+                )}
+              >
+                {num}
+              </motion.div>
+            );
+          })}
         </AnimatePresence>
       </div>
     </motion.div>

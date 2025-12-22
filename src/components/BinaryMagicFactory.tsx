@@ -1,15 +1,19 @@
 import { useState, useMemo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Factory, Sparkles } from "lucide-react";
+import { Factory, Sparkles, Lock } from "lucide-react";
 import { NumberRow } from "./NumberRow";
 import { PrintButton } from "./PrintButton";
 import { OutputCard } from "./OutputCard";
 import { PatternHint } from "./PatternHint";
+import { Phase2Panel } from "./Phase2Panel";
 
 const NUMBERS = Array.from({ length: 15 }, (_, i) => i + 1);
 const BITS: (1 | 2 | 4 | 8)[] = [1, 2, 4, 8];
 
 export const BinaryMagicFactory = () => {
+  // Phase control - starts at Phase 2 (puzzle), then unlocks Phase 1 (cards)
+  const [phase1Unlocked, setPhase1Unlocked] = useState(false);
+  
   const [selectedBits, setSelectedBits] = useState<number[]>([]);
   const [blinkingBit, setBlinkingBit] = useState<number | null>(null);
   const [isLocked, setIsLocked] = useState(false);
@@ -25,6 +29,10 @@ export const BinaryMagicFactory = () => {
   // Check if all 4 cards are completed
   const allCardsCompleted = completedCards.length === 4;
   const animationTimeouts = useRef<NodeJS.Timeout[]>([]);
+
+  const handlePhase2Complete = useCallback(() => {
+    setPhase1Unlocked(true);
+  }, []);
 
   const getMatchingNumbers = useCallback((bit: number) => {
     return NUMBERS.filter((n) => (n & bit) === bit);
@@ -159,49 +167,70 @@ export const BinaryMagicFactory = () => {
           <Sparkles className="w-8 h-8 text-accent" />
         </div>
         <p className="text-muted-foreground text-lg">
-          Pick colors to see which numbers contain those magic bits!
+          {phase1Unlocked 
+            ? "Pick colors to see which numbers contain those magic bits!"
+            : "Complete the binary puzzle to unlock the magic cards!"}
         </p>
       </motion.header>
 
       {/* Main Stage */}
-      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8 items-start">
-        {/* Left: Number List (X-Ray Scanner) */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex-1 w-full lg:w-auto"
-        >
-          <div className="bg-card/50 rounded-2xl p-4 md:p-6 backdrop-blur-sm border border-border">
-            {/* Number rows */}
-            <div className="space-y-1">
-              {NUMBERS.map((num) => {
-                const highlightedBits = getHighlightedBits(num);
-                const isHighlighted = highlightedBits.length > 0;
-                const isDimmed = (blinkingBit !== null || isLocked) && !isHighlighted;
-                
-                return (
-                  <NumberRow
-                    key={num}
-                    number={num}
-                    selectedBits={selectedBits}
-                    isDimmed={isDimmed}
-                    isHighlighted={isHighlighted}
-                    blinkingBit={blinkingBit}
-                  />
-                );
-              })}
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start">
+        {/* Left: Phase 2 Panel (Binary Input Puzzle) */}
+        <Phase2Panel onComplete={handlePhase2Complete} isActive={!phase1Unlocked} />
+
+        {/* Middle: Number List (X-Ray Scanner) - only show when Phase 1 unlocked */}
+        {phase1Unlocked && (
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="flex-1 w-full lg:w-auto"
+          >
+            <div className="bg-card/50 rounded-2xl p-4 md:p-6 backdrop-blur-sm border border-border">
+              {/* Number rows */}
+              <div className="space-y-1">
+                {NUMBERS.map((num) => {
+                  const highlightedBits = getHighlightedBits(num);
+                  const isHighlighted = highlightedBits.length > 0;
+                  const isDimmed = (blinkingBit !== null || isLocked) && !isHighlighted;
+                  
+                  return (
+                    <NumberRow
+                      key={num}
+                      number={num}
+                      selectedBits={selectedBits}
+                      isDimmed={isDimmed}
+                      isHighlighted={isHighlighted}
+                      blinkingBit={blinkingBit}
+                    />
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
 
         {/* Right: Factory Panel */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
-          className="w-full lg:w-[500px] space-y-5"
+          className="w-full lg:w-[500px] space-y-5 relative"
         >
+          {/* Frozen overlay when Phase 1 is locked */}
+          {!phase1Unlocked && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="absolute inset-0 bg-background/60 backdrop-blur-sm rounded-2xl z-20 flex flex-col items-center justify-center"
+            >
+              <Lock className="w-16 h-16 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground text-lg font-medium">
+                Complete Phase 2 to unlock
+              </p>
+            </motion.div>
+          )}
+
           <div className="text-center text-muted-foreground mb-2">
             Click buttons to print cards (multi-select):
           </div>
@@ -216,7 +245,7 @@ export const BinaryMagicFactory = () => {
                 isActive={selectedBits.includes(bit)}
                 isBlinking={blinkingBit === bit}
                 onClick={() => handlePrint(bit)}
-                disabled={isLocked}
+                disabled={isLocked || !phase1Unlocked}
               />
             ))}
           </div>

@@ -42,11 +42,11 @@
     --bit-4: 195 82% 55%;
     --bit-8: 42 92% 58%;
     
-    /* Glows */
-    --glow-1: 0 0 20px hsl(0 100% 71% / 0.6);
-    --glow-2: 0 0 20px hsl(168 76% 55% / 0.6);
-    --glow-4: 0 0 20px hsl(195 82% 55% / 0.6);
-    --glow-8: 0 0 20px hsl(42 92% 58% / 0.6);
+    /* Glows - stronger for better visibility */
+    --glow-1: 0 0 25px hsl(0 100% 71% / 0.9), 0 0 40px hsl(0 100% 71% / 0.5);
+    --glow-2: 0 0 25px hsl(168 76% 55% / 0.9), 0 0 40px hsl(168 76% 55% / 0.5);
+    --glow-4: 0 0 25px hsl(195 82% 55% / 0.9), 0 0 40px hsl(195 82% 55% / 0.5);
+    --glow-8: 0 0 25px hsl(42 92% 58% / 0.9), 0 0 40px hsl(42 92% 58% / 0.5);
 
     --sidebar-background: 222 47% 11%;
     --sidebar-foreground: 210 40% 96%;
