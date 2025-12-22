@@ -4,12 +4,13 @@ import { cn } from "@/lib/utils";
 
 interface NumberRowProps {
   number: number;
-  selectedBit: number | null;
+  selectedBits: number[];
   isDimmed: boolean;
   isHighlighted: boolean;
+  blinkingBit: number | null;
 }
 
-export const NumberRow = ({ number, selectedBit, isDimmed, isHighlighted }: NumberRowProps) => {
+export const NumberRow = ({ number, selectedBits, isDimmed, isHighlighted, blinkingBit }: NumberRowProps) => {
   const bits: (1 | 2 | 4 | 8)[] = [8, 4, 2, 1];
 
   return (
@@ -29,14 +30,19 @@ export const NumberRow = ({ number, selectedBit, isDimmed, isHighlighted }: Numb
         {number}
       </span>
       <div className="flex gap-2">
-        {bits.map((bit) => (
-          <BitDot
-            key={bit}
-            bit={bit}
-            isActive={(number & bit) === bit}
-            isHighlighted={selectedBit === bit && (number & bit) === bit}
-          />
-        ))}
+        {bits.map((bit) => {
+          const hasBit = (number & bit) === bit;
+          const isBlinking = blinkingBit === bit && hasBit;
+          return (
+            <BitDot
+              key={bit}
+              bit={bit}
+              isActive={hasBit}
+              isHighlighted={selectedBits.includes(bit) && hasBit}
+              isBlinking={isBlinking}
+            />
+          );
+        })}
       </div>
     </motion.div>
   );
