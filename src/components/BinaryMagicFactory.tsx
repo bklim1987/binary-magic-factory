@@ -270,19 +270,80 @@ export const BinaryMagicFactory = () => {
             ))}
           </div>
 
-          {/* Pattern Hints - sorted by bit value */}
-          <div className="space-y-2">
-            <AnimatePresence>
-              {sortedSelectedBits.map(bit => (
-                <PatternHint key={bit} bit={bit} />
-              ))}
-            </AnimatePresence>
-          </div>
+          {/* Pattern Hints OR System Decoder - swap with animation */}
+          <AnimatePresence mode="wait">
+            {!allCardsCompleted ? (
+              <motion.div
+                key="pattern-hints"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-2"
+              >
+                <AnimatePresence>
+                  {sortedSelectedBits.map(bit => (
+                    <PatternHint key={bit} bit={bit} />
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+            ) : (
+              <motion.div 
+                key="system-decoder"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-4"
+              >
+                <div className="text-xs text-muted-foreground mb-3 text-center uppercase tracking-wider">
+                  Binary Decoder
+                </div>
+
+                <div className="flex justify-around items-center gap-4 py-3">
+                  {[8, 4, 2, 1].map((bit) => {
+                    const isActive = selectedCardBits.includes(bit);
+                    const bitConfig = {
+                      1: { color: 'text-red-400', bg: 'bg-red-500/20' },
+                      2: { color: 'text-green-400', bg: 'bg-green-500/20' },
+                      4: { color: 'text-blue-400', bg: 'bg-blue-500/20' },
+                      8: { color: 'text-yellow-400', bg: 'bg-yellow-500/20' },
+                    }[bit] || { color: 'text-foreground', bg: 'bg-muted' };
+                    
+                    return (
+                      <div key={bit} className="flex flex-col items-center">
+                        <span className="text-[10px] text-muted-foreground mb-1">2<sup>{Math.log2(bit)}</sup></span>
+                        <motion.div
+                          key={isActive ? "1" : "0"}
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          className={`w-12 h-12 rounded-lg flex items-center justify-center text-2xl font-bold transition-colors
+                            ${isActive ? `${bitConfig.bg} ${bitConfig.color}` : 'bg-muted/50 text-muted-foreground/30'}`}
+                        >
+                          {isActive ? "1" : "0"}
+                        </motion.div>
+                        <span className={`text-xs mt-1 ${isActive ? bitConfig.color : 'text-muted-foreground/50'}`}>
+                          {bit}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="border-t border-border pt-3 mt-2 text-center">
+                  <div className="text-xs text-muted-foreground mb-1">Click cards above to decode</div>
+                  <div className="text-3xl font-bold text-foreground">
+                    = {selectedBitsSum}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </div>
-
       {/* Tutorial Help Button */}
       <TutorialDialog />
     </div>
   );
 };
+
