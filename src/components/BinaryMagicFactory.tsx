@@ -188,9 +188,9 @@ export const BinaryMagicFactory = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
-            className="flex-1 w-full lg:w-auto"
+            className="flex-1 w-full lg:w-auto flex flex-col"
           >
-            <div className="bg-card/50 rounded-2xl p-4 md:p-6 backdrop-blur-sm border border-border">
+            <div className="bg-card/50 rounded-2xl p-4 md:p-6 backdrop-blur-sm border border-border flex-1 flex flex-col justify-between">
               {/* Number rows */}
               <div className="space-y-1">
                 {NUMBERS.map((num) => {
