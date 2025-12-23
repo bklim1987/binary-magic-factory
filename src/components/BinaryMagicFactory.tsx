@@ -7,6 +7,7 @@ import { OutputCard } from "./OutputCard";
 import { PatternHint } from "./PatternHint";
 import { Phase2Panel } from "./Phase2Panel";
 import { TutorialDialog } from "./TutorialDialog";
+import { useHackerSound } from "@/hooks/useHackerSound";
 
 const NUMBERS = Array.from({ length: 15 }, (_, i) => i + 1);
 const BITS: (1 | 2 | 4 | 8)[] = [1, 2, 4, 8];
@@ -16,6 +17,7 @@ export const BinaryMagicFactory = () => {
   const [phase2Unlocked, setPhase2Unlocked] = useState(false);
   
   const [selectedBits, setSelectedBits] = useState<number[]>([]);
+  const { playHackerSound, playDataStreamSound } = useHackerSound();
   const [blinkingBit, setBlinkingBit] = useState<number | null>(null);
   const [isLocked, setIsLocked] = useState(false);
   const [animatingCards, setAnimatingCards] = useState<Record<number, number[]>>({
@@ -65,6 +67,9 @@ export const BinaryMagicFactory = () => {
       // Lock interactions
       setIsLocked(true);
       
+      // Play hacker sound effect
+      playHackerSound();
+      
       // Select and animate
       setSelectedBits(prev => [...prev, bit]);
       setBlinkingBit(bit);
@@ -78,6 +83,7 @@ export const BinaryMagicFactory = () => {
         
         matchingNums.forEach((num, index) => {
           const timeout = setTimeout(() => {
+            playDataStreamSound();
             setAnimatingCards(prev => ({
               ...prev,
               [bit]: [...prev[bit], num]
