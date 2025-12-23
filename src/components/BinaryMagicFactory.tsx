@@ -17,7 +17,7 @@ export const BinaryMagicFactory = () => {
   const [phase2Unlocked, setPhase2Unlocked] = useState(false);
   
   const [selectedBits, setSelectedBits] = useState<number[]>([]);
-  const { playHackerSound, playDataStreamSound } = useHackerSound();
+  const { startHackerSound, stopHackerSound } = useHackerSound();
   const [blinkingBit, setBlinkingBit] = useState<number | null>(null);
   const [isLocked, setIsLocked] = useState(false);
   const [animatingCards, setAnimatingCards] = useState<Record<number, number[]>>({
@@ -67,9 +67,6 @@ export const BinaryMagicFactory = () => {
       // Lock interactions
       setIsLocked(true);
       
-      // Play hacker sound effect
-      playHackerSound();
-      
       // Select and animate
       setSelectedBits(prev => [...prev, bit]);
       setBlinkingBit(bit);
@@ -83,15 +80,20 @@ export const BinaryMagicFactory = () => {
         
         matchingNums.forEach((num, index) => {
           const timeout = setTimeout(() => {
-            playDataStreamSound();
+            // Start sound with the first number
+            if (index === 0) {
+              startHackerSound();
+            }
+            
             setAnimatingCards(prev => ({
               ...prev,
               [bit]: [...prev[bit], num]
             }));
             
-            // After last number, unlock and mark card as completed
+            // After last number, stop sound, unlock and mark card as completed
             if (index === matchingNums.length - 1) {
               setTimeout(() => {
+                stopHackerSound();
                 setIsLocked(false);
                 setCompletedCards(prev => [...prev, bit]);
               }, 1000);
