@@ -177,7 +177,7 @@ export const BinaryMagicFactory = () => {
       </motion.header>
 
       {/* Main Stage */}
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start justify-center">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-stretch justify-center">
         {/* Left: Phase 1 Panel (Binary Input Puzzle) - hide after Phase 2 unlocked */}
         {!phase2Unlocked && (
           <Phase2Panel onComplete={handlePhase1Complete} isActive={!phase2Unlocked} />
@@ -219,7 +219,7 @@ export const BinaryMagicFactory = () => {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
-          className="w-full lg:w-[500px] space-y-5 relative"
+          className="w-full lg:w-[500px] flex flex-col space-y-5 relative"
         >
           {/* Frozen overlay when Phase 2 is locked */}
           {!phase2Unlocked && (
@@ -271,16 +271,17 @@ export const BinaryMagicFactory = () => {
           </div>
 
           {/* Pattern Hints OR System Decoder - swap with animation */}
-          <AnimatePresence mode="wait">
-            {!allCardsCompleted ? (
-              <motion.div
-                key="pattern-hints"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-2"
-              >
+          <div className="mt-auto">
+            <AnimatePresence mode="wait">
+              {!allCardsCompleted ? (
+                <motion.div
+                  key="pattern-hints"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-2"
+                >
                 <AnimatePresence>
                   {sortedSelectedBits.map(bit => (
                     <PatternHint key={bit} bit={bit} />
@@ -338,7 +339,8 @@ export const BinaryMagicFactory = () => {
                 </div>
               </motion.div>
             )}
-          </AnimatePresence>
+            </AnimatePresence>
+          </div>
         </motion.div>
       </div>
       {/* Tutorial Help Button */}
